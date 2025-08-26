@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Cosmic Clicker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0c0c2a, #1a1a4a, #2d1b69);
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
+
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        .game-container {
+            display: flex;
+            height: 100vh;
+            align-items: center;
+            justify-content: center;
+            gap: 50px;
+        }
+
+        .main-planet {
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        .main-planet:hover {
+            transform: scale(1.05);
+        }
+
+        .main-planet:active {
+            transform: scale(0.95);
+        }
+
+        .planet {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #4facfe, #00f2fe, #1e3c72);
+            box-shadow: 0 0 50px rgba(79, 172, 254, 0.5);
+            position: relative;
+            overflow: hidden;
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .planet::before {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: 10%;
+            width: 60%;
+            height: 60%;
+            background: radial-gradient(ellipse, rgba(255,255,255,0.3), transparent);
+            border-radius: 50%;
+        }
+
+        .click-effect {
+            position: absolute;
+            pointer-events: none;
+            color: #ffff00;
+            font-size: 24px;
+            font-weight: bold;
+            animation: floatUp 1s ease-out forwards;
+            z-index: 100;
+        }
+
+        @keyframes floatUp {
+            0% { 
+                opacity: 1; 
+                transform: translateY(0px) scale(1); 
+            }
+            100% { 
+                opacity: 0; 
+                transform: translateY(-100px) scale(1.5); 
+            }
+        }
+
+        .ui-panel {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(79, 172, 254, 0.3);
+            box-shadow: 0 0 30px rgba(79, 172, 254, 0.2);
+            min-width: 300px;
+        }
+
+        .score {
+            font-size: 36px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #4facfe;
+            text-shadow: 0 0 10px rgba(79, 172, 254, 0.5);
+        }
+
+        .stats {
+            margin-bottom: 30px;
+        }
+
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .upgrades {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .upgrade {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upgrade:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .upgrade:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .upgrade::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .upgrade:hover::before {
+            left: 100%;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 48px;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(79, 172, 254, 0.5);
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 40px;
+            opacity: 0.8;
+        }
+
+        .prestige-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid rgba(79, 172, 254, 0.3);
+        }
+
+        .prestige-btn {
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .achievement {
+            background: rgba(255, 215, 0, 0.2);
+            border: 1px solid gold;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 14px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            0% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
+            100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <div class="title">🚀 COSMIC CLICKER</div>
+    <div class="subtitle">Harvest energy from distant planets!</div>
+    
+    <div class="game-container">
+        <div class="ui-panel">
+            <div class="score">⚡ <span id="energy">0</span></div>
+            
+            <div class="stats">
+                <div class="stat">
+                    <span>🎯 Total Clicks:</span>
+                    <span id="totalClicks">0</span>
+                </div>
+                <div class="stat">
+                    <span>⚡ Energy/sec:</span>
+                    <span id="energyPerSec">0</span>
+                </div>
+                <div class="stat">
+                    <span>🏆 Prestige Level:</span>
+                    <span id="prestigeLevel">0</span>
+                </div>
+            </div>
+            
+            <div class="upgrades">
+                <button class="upgrade" id="autoClicker">
+                    🤖 Auto Harvester<br>
+                    <small>+1 energy/sec | Cost: <span id="autoClickerCost">10</span>⚡</small>
+                </button>
+                
+                <button class="upgrade" id="energyBoost">
+                    ⚡ Energy Amplifier<br>
+                    <small>+2 per click | Cost: <span id="energyBoostCost">25</span>⚡</small>
+                </button>
+                
+                <button class="upgrade" id="quantumDrill">
+                    🔬 Quantum Drill<br>
+                    <small>+5 energy/sec | Cost: <span id="quantumDrillCost">100</span>⚡</small>
+                </button>
+                
+                <button class="upgrade" id="solarArray">
+                    ☀️ Solar Array<br>
+                    <small>+20 energy/sec | Cost: <span id="solarArrayCost">500</span>⚡</small>
+                </button>
+            </div>
+            
+            <div class="prestige-section">
+                <div class="stat">
+                    <span>✨ Prestige Available:</span>
+                    <span id="prestigePoints">0</span>
+                </div>
+                <button class="upgrade prestige-btn" id="prestigeBtn">
+                    ✨ PRESTIGE (+<span id="prestigeGain">0</span> multiplier)
+                </button>
+            </div>
+            
+            <div id="achievements"></div>
+        </div>
+        
+        <div class="main-planet" id="planet">
+            <div class="planet"></div>
+        </div>
+    </div>
+
+    <script>
+        class CosmicClicker {
+            constructor() {
+                this.energy = 0;
+                this.totalClicks = 0;
+                this.energyPerClick = 1;
+                this.energyPerSec = 0;
+                this.prestigeLevel = 0;
+                this.prestigeMultiplier = 1;
+                
+                this.upgrades = {
+                    autoClicker: { count: 0, cost: 10, baseCost: 10, effect: 1 },
+                    energyBoost: { count: 0, cost: 25, baseCost: 25, effect: 2 },
+                    quantumDrill: { count: 0, cost: 100, baseCost: 100, effect: 5 },
+                    solarArray: { count: 0, cost: 500, baseCost: 500, effect: 20 }
+                };
+                
+                this.achievements = [
+                    { id: 'first_click', name: 'First Contact', desc: 'Click the planet', unlocked: false, check: () => this.totalClicks >= 1 },
+                    { id: 'hundred_clicks', name: 'Planet Tapper', desc: 'Click 100 times', unlocked: false, check: () => this.totalClicks >= 100 },
+                    { id: 'first_auto', name: 'Automation', desc: 'Buy first auto harvester', unlocked: false, check: () => this.upgrades.autoClicker.count >= 1 },
+                    { id: 'energy_lord', name: 'Energy Lord', desc: 'Reach 1000 energy', unlocked: false, check: () => this.energy >= 1000 },
+                    { id: 'first_prestige', name: 'Transcendence', desc: 'Prestige for the first time', unlocked: false, check: () => this.prestigeLevel >= 1 }
+                ];
+                
+                this.init();
+            }
+            
+            init() {
+                this.createStars();
+                this.setupEventListeners();
+                this.gameLoop();
+            }
+            
+            createStars() {
+                const starsContainer = document.getElementById('stars');
+                for (let i = 0; i < 100; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'star';
+                    star.style.left = Math.random() * 100 + '%';
+                    star.style.top = Math.random() * 100 + '%';
+                    star.style.width = Math.random() * 3 + 1 + 'px';
+                    star.style.height = star.style.width;
+                    star.style.animationDelay = Math.random() * 2 + 's';
+                    starsContainer.appendChild(star);
+                }
+            }
+            
+            setupEventListeners() {
+                document.getElementById('planet').addEventListener('click', (e) => this.clickPlanet(e));
+                document.getElementById('autoClicker').addEventListener('click', () => this.buyUpgrade('autoClicker'));
+                document.getElementById('energyBoost').addEventListener('click', () => this.buyUpgrade('energyBoost'));
+                document.getElementById('quantumDrill').addEventListener('click', () => this.buyUpgrade('quantumDrill'));
+                document.getElementById('solarArray').addEventListener('click', () => this.buyUpgrade('solarArray'));
+                document.getElementById('prestigeBtn').addEventListener('click', () => this.prestige());
+            }
+            
+            clickPlanet(e) {
+                this.energy += this.energyPerClick * this.prestigeMultiplier;
+                this.totalClicks++;
+                
+                // Create click effect
+                const effect = document.createElement('div');
+                effect.className = 'click-effect';
+                effect.textContent = '+' + (this.energyPerClick * this.prestigeMultiplier);
+                effect.style.left = e.clientX + 'px';
+                effect.style.top = e.clientY + 'px';
+                document.body.appendChild(effect);
+                
+                setTimeout(() => effect.remove(), 1000);
+                
+                this.updateUI();
+                this.checkAchievements();
+            }
+            
+            buyUpgrade(type) {
+                const upgrade = this.upgrades[type];
+                if (this.energy >= upgrade.cost) {
+                    this.energy -= upgrade.cost;
+                    upgrade.count++;
+                    
+                    if (type === 'energyBoost') {
+                        this.energyPerClick += upgrade.effect;
+                    } else {
+                        this.energyPerSec += upgrade.effect;
+                    }
+                    
+                    upgrade.cost = Math.floor(upgrade.baseCost * Math.pow(1.5, upgrade.count));
+                    this.updateUI();
+                    this.checkAchievements();
+                }
+            }
+            
+            prestige() {
+                const prestigeGain = Math.floor(this.energy / 1000);
+                if (prestigeGain > 0) {
+                    this.prestigeLevel++;
+                    this.prestigeMultiplier += prestigeGain * 0.1;
+                    
+                    // Reset progress
+                    this.energy = 0;
+                    this.energyPerClick = 1;
+                    this.energyPerSec = 0;
+                    
+                    // Reset upgrades
+                    for (let type in this.upgrades) {
+                        const upgrade = this.upgrades[type];
+                        upgrade.count = 0;
+                        upgrade.cost = upgrade.baseCost;
+                    }
+                    
+                    this.updateUI();
+                    this.checkAchievements();
+                }
+            }
+            
+            checkAchievements() {
+                this.achievements.forEach(achievement => {
+                    if (!achievement.unlocked && achievement.check()) {
+                        achievement.unlocked = true;
+                        this.showAchievement(achievement);
+                    }
+                });
+            }
+            
+            showAchievement(achievement) {
+                const achievementDiv = document.createElement('div');
+                achievementDiv.className = 'achievement';
+                achievementDiv.innerHTML = `🏆 <strong>${achievement.name}</strong><br><small>${achievement.desc}</small>`;
+                document.getElementById('achievements').appendChild(achievementDiv);
+            }
+            
+            updateUI() {
+                document.getElementById('energy').textContent = Math.floor(this.energy);
+                document.getElementById('totalClicks').textContent = this.totalClicks;
+                document.getElementById('energyPerSec').textContent = this.energyPerSec.toFixed(1);
+                document.getElementById('prestigeLevel').textContent = this.prestigeLevel;
+                
+                // Update upgrade costs and buttons
+                for (let type in this.upgrades) {
+                    const upgrade = this.upgrades[type];
+                    document.getElementById(type + 'Cost').textContent = upgrade.cost;
+                    document.getElementById(type).disabled = this.energy < upgrade.cost;
+                }
+                
+                // Update prestige info
+                const prestigeGain = Math.floor(this.energy / 1000);
+                document.getElementById('prestigePoints').textContent = prestigeGain;
+                document.getElementById('prestigeGain').textContent = (prestigeGain * 0.1).toFixed(1);
+                document.getElementById('prestigeBtn').disabled = prestigeGain === 0;
+            }
+            
+            gameLoop() {
+                setInterval(() => {
+                    this.energy += (this.energyPerSec / 10) * this.prestigeMultiplier;
+                    this.updateUI();
+                }, 100);
+            }
+        }
+        
+        // Start the game
+        new CosmicClicker();
+    </script>
+</body>
+</html>
